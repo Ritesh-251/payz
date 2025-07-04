@@ -1,8 +1,8 @@
-import Wallet from "../models/wallet.model";
-import { asyncHandler } from "../utils/asyncHandler";
-import { ApiResponse } from "../utils/apiResponse";
+import Wallet from "../models/wallet.model.js";
+import { asyncHandler } from "../utils/asyncHandler.js";
+import { ApiResponse } from "../utils/apiResponse.js";
 import mongoose from "mongoose";
-import User from "../models/user.model";
+import User from "../models/user.model.js";
 
  const checkBalance = asyncHandler (async (req,res)=>{
         const wallet = await Wallet.findOne({ user: req.user._id });
@@ -13,9 +13,9 @@ import User from "../models/user.model";
        const session = await mongoose.startSession();
         session.startTransaction();
         const { amount, to } = req.body;
-        const sender = await Wallet.findById(req.user._id).session(session);
+        const sender = await Wallet.findOne({ user: req.user._id }).session(session);
         const receiver = await User.findOne({ userName: to.toLowerCase() });
-        const receiverUser = await Wallet.findById(receiver._id).session(session)
+        const receiverUser = await Wallet.findOne({ user: receiver._id }).session(session)
 
 
 
@@ -34,10 +34,10 @@ import User from "../models/user.model";
          }
 
     
-    await Wallet.updateOne({ userId: req.userId }, { $inc: { balance: -amount } }).session(session);
-    await Wallet.updateOne({ userId: to }, { $inc: { balance: amount } }).session(session);
+    await Wallet.updateOne({ user: req.user._id }, { $inc: { balance: -amount } }).session(session);
+    await Wallet.updateOne({ user: receiver._id }, { $inc: { balance: amount } }).session(session);
     await session.commitTransaction();
-
+    session.endSession();
     res.status(200).json(new ApiResponse(200,{},"Money transferred successfully"));
 
 

@@ -67,7 +67,6 @@ const signIn = asyncHandler(async (req,res)=>{
         throw new ApiError(400,"User don't exist");
     }
     const isPasswordValid = await user.isPasswordCorrect(password);
-    console.log("it is the check",isPasswordValid);
     if(!isPasswordValid){
       throw new ApiError(401,"Invalid user credentials");
     }
@@ -123,4 +122,4 @@ const UpdateAccountDetails = asyncHandler(async (req,res)=>{
       .json(new ApiResponse(200, user, "Account details updated successfully"))
 });
 
-export  {registerUser,signIn};
+export  {registerUser,signIn,UpdateAccountDetails,changeCurrentPassword};
